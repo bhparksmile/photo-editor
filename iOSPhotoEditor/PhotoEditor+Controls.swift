@@ -1,12 +1,11 @@
 //
 //  PhotoEditor+Controls.swift
-//  Pods
+//  SmileBaby
 //
-//  Created by Mohamed Hamed on 6/16/17.
-//
+//  Created by bhpark on 2021/06/08.
+//  Copyright © 2021 smilelab. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 // MARK: - Control
@@ -24,12 +23,12 @@ extension PhotoEditorViewController {
 
      //MARK: Top Toolbar
     
-    @IBAction func cancelButtonTapped(_ sender: Any) {
+    @objc func backButtonTapped(_ sender: Any) {
         photoEditorDelegate?.canceledEditing()
         self.dismiss(animated: true, completion: nil)
     }
 
-    @IBAction func cropButtonTapped(_ sender: UIButton) {
+    @objc func cropButtonTapped(_ sender: UIButton) {
         let controller = CropViewController()
         controller.delegate = self
         controller.image = image
@@ -37,11 +36,11 @@ extension PhotoEditorViewController {
         present(navController, animated: true, completion: nil)
     }
 
-    @IBAction func stickersButtonTapped(_ sender: Any) {
+    @objc func stickersButtonTapped(_ sender: Any) {
         addStickersViewController()
     }
 
-    @IBAction func drawButtonTapped(_ sender: Any) {
+    @objc func drawButtonTapped(_ sender: Any) {
         isDrawing = true
         canvasImageView.isUserInteractionEnabled = false
         doneButton.isHidden = false
@@ -49,28 +48,28 @@ extension PhotoEditorViewController {
         hideToolbar(hide: true)
     }
 
-    @IBAction func textButtonTapped(_ sender: Any) {
+    @objc func textButtonTapped(_ sender: Any) {
         isTyping = true
-        let textView = UITextView(frame: CGRect(x: 0, y: canvasImageView.center.y,
+        let textStickerView = TextStickerView(frame: CGRect(x: 0, y: canvasImageView.center.y,
                                                 width: UIScreen.main.bounds.width, height: 30))
         
-        textView.textAlignment = .center
-        textView.font = UIFont(name: "Helvetica", size: 30)
-        textView.textColor = textColor
-        textView.layer.shadowColor = UIColor.black.cgColor
-        textView.layer.shadowOffset = CGSize(width: 1.0, height: 0.0)
-        textView.layer.shadowOpacity = 0.2
-        textView.layer.shadowRadius = 1.0
-        textView.layer.backgroundColor = UIColor.clear.cgColor
-        textView.autocorrectionType = .no
-        textView.isScrollEnabled = false
-        textView.delegate = self
-        self.canvasImageView.addSubview(textView)
-        addGestures(view: textView)
-        textView.becomeFirstResponder()
-    }    
+        textStickerView.textView.textAlignment = .center
+        textStickerView.textView.font = textFont?.withSize(30)
+        textStickerView.textView.textColor = textColor
+        textStickerView.textView.autocorrectionType = .no
+        textStickerView.textView.isScrollEnabled = false
+        textStickerView.textStickerDelegate = self
+        textStickerView.layer.shadowColor = UIColor.black.cgColor
+        textStickerView.layer.shadowOffset = CGSize(width: 1.0, height: 0.0)
+        textStickerView.layer.shadowOpacity = 0.2
+        textStickerView.layer.shadowRadius = 1.0
+        textStickerView.layer.backgroundColor = UIColor.clear.cgColor
+        self.canvasImageView.addSubview(textStickerView)
+        addGestures(view: textStickerView)
+        textStickerView.textView.becomeFirstResponder()
+    }
     
-    @IBAction func doneButtonTapped(_ sender: Any) {
+    @objc func doneButtonTapped(_ sender: Any) {
         view.endEditing(true)
         doneButton.isHidden = true
         colorPickerView.isHidden = true
@@ -81,17 +80,17 @@ extension PhotoEditorViewController {
     
     //MARK: Bottom Toolbar
     
-    @IBAction func saveButtonTapped(_ sender: AnyObject) {
+    @objc func saveButtonTapped(_ sender: AnyObject) {
         UIImageWriteToSavedPhotosAlbum(canvasView.toImage(),self, #selector(PhotoEditorViewController.image(_:withPotentialError:contextInfo:)), nil)
     }
     
-    @IBAction func shareButtonTapped(_ sender: UIButton) {
+    @objc func shareButtonTapped(_ sender: UIButton) {
         let activity = UIActivityViewController(activityItems: [canvasView.toImage()], applicationActivities: nil)
         present(activity, animated: true, completion: nil)
         
     }
     
-    @IBAction func clearButtonTapped(_ sender: AnyObject) {
+    @objc func clearButtonTapped(_ sender: AnyObject) {
         //clear drawing
         canvasImageView.image = nil
         //clear stickers and textviews
@@ -100,7 +99,10 @@ extension PhotoEditorViewController {
         }
     }
     
-    @IBAction func continueButtonPressed(_ sender: Any) {
+    @objc func continueButtonPressed(_ sender: Any) {
+        self.deselectAllStickerView()
+//        self.canvasView.setNeedsDisplay()
+//        self.canvasView.layoutIfNeeded()
         let img = self.canvasView.toImage()
         photoEditorDelegate?.doneEditing(image: img)
         self.dismiss(animated: true, completion: nil)
@@ -137,3 +139,4 @@ extension PhotoEditorViewController {
     }
     
 }
+

@@ -1,12 +1,11 @@
 //
 //  PhotoEditor+Crop.swift
-//  Pods
+//  SmileBaby
 //
-//  Created by Mohamed Hamed on 6/16/17.
-//
+//  Created by bhpark on 2021/06/08.
+//  Copyright © 2021 smilelab. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 // MARK: - CropView

@@ -1,12 +1,11 @@
 //
 //  PhotoEditor+StickersViewController.swift
-//  Pods
+//  SmileBaby
 //
-//  Created by Mohamed Hamed on 6/16/17.
-//
+//  Created by bhpark on 2021/06/08.
+//  Copyright © 2021 smilelab. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 extension PhotoEditorViewController {
@@ -44,13 +43,14 @@ extension PhotoEditorViewController {
             self.stickersViewController.removeFromParent()
             self.hideToolbar(hide: false)
         })
-    }    
+    }
 }
 
 extension PhotoEditorViewController: StickersViewControllerDelegate {
     
     func didSelectView(view: UIView) {
         self.removeStickersView()
+        self.deselectAllStickerView()
         
         view.center = canvasImageView.center
         self.canvasImageView.addSubview(view)
@@ -60,15 +60,17 @@ extension PhotoEditorViewController: StickersViewControllerDelegate {
     
     func didSelectImage(image: UIImage) {
         self.removeStickersView()
+        self.deselectAllStickerView()
         
-        let imageView = UIImageView(image: image)
-        imageView.contentMode = .scaleAspectFit
-        imageView.frame.size = CGSize(width: 150, height: 150)
-        imageView.center = canvasImageView.center
+        let stickerView = StickerView()
+        stickerView.frame.size = CGSize(width: 150, height: 150)
+        stickerView.center = canvasImageView.center
+        stickerView.imageView.image = image
+        stickerView.isSelected = true
         
-        self.canvasImageView.addSubview(imageView)
+        self.canvasImageView.addSubview(stickerView)
         //Gestures
-        addGestures(view: imageView)
+        addGestures(view: stickerView)
     }
     
     func stickersViewDidDisappear() {
@@ -100,5 +102,25 @@ extension PhotoEditorViewController: StickersViewControllerDelegate {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(PhotoEditorViewController.tapGesture))
         view.addGestureRecognizer(tapGesture)
         
+    }
+    
+    func extractStickerView(view: UIView) -> [StickerView] {
+        var stickerViews: [StickerView] = []
+        for subView in view.subviews {
+            if subView is StickerView {
+                stickerViews.append(subView as! StickerView)
+            }
+        }
+        return stickerViews
+    }
+    
+    func deselectAllStickerView() {
+        for subView in self.canvasImageView.subviews {
+            if subView is StickerView {
+                (subView as! StickerView).isSelected = false
+            } else if subView is TextStickerView {
+                (subView as! TextStickerView).isSelected = false
+            }
+        }
     }
 }

@@ -1,15 +1,14 @@
 //
 //  PhotoEditor+Gestures.swift
-//  Photo Editor
+//  SmileBaby
 //
-//  Created by Mohamed Hamed on 6/16/17.
+//  Created by bhpark on 2021/06/08.
+//  Copyright © 2021 smilelab. All rights reserved.
 //
-//
-
-import Foundation
-
 
 import UIKit
+
+
 
 extension PhotoEditorViewController : UIGestureRecognizerDelegate  {
     
@@ -22,11 +21,11 @@ extension PhotoEditorViewController : UIGestureRecognizerDelegate  {
             if view is UIImageView {
                 //Tap only on visible parts on the image
                 if recognizer.state == .began {
-                    for imageView in subImageViews(view: canvasImageView) {
-                        let location = recognizer.location(in: imageView)
-                        let alpha = imageView.alphaAtPoint(location)
+                    for stickerView in extractStickerView(view: canvasImageView) {
+                        let location = recognizer.location(in: stickerView)
+                        let alpha = stickerView.alphaAtPoint(location)
                         if alpha > 0 {
-                            imageViewToPan = imageView
+                            imageViewToPan = stickerView
                             break
                         }
                     }
@@ -46,25 +45,27 @@ extension PhotoEditorViewController : UIGestureRecognizerDelegate  {
      */
     @objc func pinchGesture(_ recognizer: UIPinchGestureRecognizer) {
         if let view = recognizer.view {
-            if view is UITextView {
-                let textView = view as! UITextView
-                
-                if textView.font!.pointSize * recognizer.scale < 90 {
-                    let font = UIFont(name: textView.font!.fontName, size: textView.font!.pointSize * recognizer.scale)
-                    textView.font = font
-                    let sizeToFit = textView.sizeThatFits(CGSize(width: UIScreen.main.bounds.size.width,
-                                                                 height:CGFloat.greatestFiniteMagnitude))
-                    textView.bounds.size = CGSize(width: textView.intrinsicContentSize.width,
-                                                  height: sizeToFit.height)
+            if let stickerView = view as? TextStickerView {
+                if stickerView.textView.font!.pointSize * recognizer.scale < 90 {
+                    let font = UIFont(name: stickerView.textView.font!.fontName, size: stickerView.textView.font!.pointSize * recognizer.scale)
+                    stickerView.textView.font = font
+                    dummyTextView.font = font
+                    dummyTextView.text = stickerView.textView.text
+                    
+                    let fitsSize = CGSize(width: UIScreen.main.bounds.size.width,
+                                          height:CGFloat.greatestFiniteMagnitude)
+                    let sizeToFit = dummyTextView.sizeThatFits(fitsSize)
+                    
+                    let newSize = CGSize(width: sizeToFit.width+24, height: sizeToFit.height+24)
+                    stickerView.bounds.size = newSize
                 } else {
-                    let sizeToFit = textView.sizeThatFits(CGSize(width: UIScreen.main.bounds.size.width,
+                    let sizeToFit = stickerView.textView.sizeThatFits(CGSize(width: UIScreen.main.bounds.size.width,
                                                                  height:CGFloat.greatestFiniteMagnitude))
-                    textView.bounds.size = CGSize(width: textView.intrinsicContentSize.width,
-                                                  height: sizeToFit.height)
+                    stickerView.bounds.size = CGSize(width: stickerView.textView.intrinsicContentSize.width+24,
+                                                  height: sizeToFit.height+24)
                 }
                 
-                
-                textView.setNeedsDisplay()
+                stickerView.setNeedsDisplay()
             } else {
                 view.transform = view.transform.scaledBy(x: recognizer.scale, y: recognizer.scale)
             }
@@ -89,16 +90,20 @@ extension PhotoEditorViewController : UIGestureRecognizerDelegate  {
      */
     @objc func tapGesture(_ recognizer: UITapGestureRecognizer) {
         if let view = recognizer.view {
-            if view is UIImageView {
+            self.deselectAllStickerView()
+            if view is StickerView {
                 //Tap only on visible parts on the image
-                for imageView in subImageViews(view: canvasImageView) {
-                    let location = recognizer.location(in: imageView)
-                    let alpha = imageView.alphaAtPoint(location)
+                for stickerView in extractStickerView(view: canvasImageView) {
+                    let location = recognizer.location(in: stickerView)
+                    let alpha = stickerView.alphaAtPoint(location)
                     if alpha > 0 {
-                        scaleEffect(view: imageView)
+                        stickerView.isSelected = true
+                        scaleEffect(view: stickerView)
                         break
                     }
                 }
+            } else if view is TextStickerView {
+                (view as! TextStickerView).isSelected = true
             } else {
                 scaleEffect(view: view)
             }
@@ -156,15 +161,14 @@ extension PhotoEditorViewController : UIGestureRecognizerDelegate  {
     }
     
     /**
-     Moving Objects 
+     Moving Objects
      delete the view if it's inside the delete view
      Snap the view back if it's out of the canvas
      */
 
     func moveView(view: UIView, recognizer: UIPanGestureRecognizer)  {
-        
-        hideToolbar(hide: true)
-        deleteView.isHidden = false
+//        hideToolbar(hide: true)
+//        deleteView.isHidden = false
         
         view.superview?.bringSubviewToFront(view)
         let pointToSuperView = recognizer.location(in: self.view)
@@ -174,43 +178,44 @@ extension PhotoEditorViewController : UIGestureRecognizerDelegate  {
         
         recognizer.setTranslation(CGPoint.zero, in: canvasImageView)
         
-        if let previousPoint = lastPanPoint {
-            //View is going into deleteView
-            if deleteView.frame.contains(pointToSuperView) && !deleteView.frame.contains(previousPoint) {
-                if #available(iOS 10.0, *) {
-                    let generator = UIImpactFeedbackGenerator(style: .heavy)
-                    generator.impactOccurred()
-                }
-                UIView.animate(withDuration: 0.3, animations: {
-                    view.transform = view.transform.scaledBy(x: 0.25, y: 0.25)
-                    view.center = recognizer.location(in: self.canvasImageView)
-                })
-            }
-                //View is going out of deleteView
-            else if deleteView.frame.contains(previousPoint) && !deleteView.frame.contains(pointToSuperView) {
-                //Scale to original Size
-                UIView.animate(withDuration: 0.3, animations: {
-                    view.transform = view.transform.scaledBy(x: 4, y: 4)
-                    view.center = recognizer.location(in: self.canvasImageView)
-                })
-            }
-        }
+//        if let previousPoint = lastPanPoint {
+//            //View is going into deleteView
+//            if deleteView.frame.contains(pointToSuperView) && !deleteView.frame.contains(previousPoint) {
+//                if #available(iOS 10.0, *) {
+//                    let generator = UIImpactFeedbackGenerator(style: .heavy)
+//                    generator.impactOccurred()
+//                }
+//                UIView.animate(withDuration: 0.3, animations: {
+//                    view.transform = view.transform.scaledBy(x: 0.25, y: 0.25)
+//                    view.center = recognizer.location(in: self.canvasImageView)
+//                })
+//            }
+//                //View is going out of deleteView
+//            else if deleteView.frame.contains(previousPoint) && !deleteView.frame.contains(pointToSuperView) {
+//                //Scale to original Size
+//                UIView.animate(withDuration: 0.3, animations: {
+//                    view.transform = view.transform.scaledBy(x: 4, y: 4)
+//                    view.center = recognizer.location(in: self.canvasImageView)
+//                })
+//            }
+//        }
         lastPanPoint = pointToSuperView
         
         if recognizer.state == .ended {
             imageViewToPan = nil
             lastPanPoint = nil
             hideToolbar(hide: false)
-            deleteView.isHidden = true
-            let point = recognizer.location(in: self.view)
+//            deleteView.isHidden = true
+//            let point = recognizer.location(in: self.view)
             
-            if deleteView.frame.contains(point) { // Delete the view
-                view.removeFromSuperview()
-                if #available(iOS 10.0, *) {
-                    let generator = UINotificationFeedbackGenerator()
-                    generator.notificationOccurred(.success)
-                }
-            } else if !canvasImageView.bounds.contains(view.center) { //Snap the view back to canvasImageView
+//            if deleteView.frame.contains(point) { // Delete the view
+//                view.removeFromSuperview()
+//                if #available(iOS 10.0, *) {
+//                    let generator = UINotificationFeedbackGenerator()
+//                    generator.notificationOccurred(.success)
+//                }
+//            } else
+            if !canvasImageView.bounds.contains(view.center) { //Snap the view back to canvasImageView
                 UIView.animate(withDuration: 0.3, animations: {
                     view.center = self.canvasImageView.center
                 })
@@ -219,13 +224,5 @@ extension PhotoEditorViewController : UIGestureRecognizerDelegate  {
         }
     }
     
-    func subImageViews(view: UIView) -> [UIImageView] {
-        var imageviews: [UIImageView] = []
-        for imageView in view.subviews {
-            if imageView is UIImageView {
-                imageviews.append(imageView as! UIImageView)
-            }
-        }
-        return imageviews
-    }
 }
+

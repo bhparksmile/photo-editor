@@ -1,13 +1,13 @@
 //
 //  PhotoEditor+Keyboard.swift
-//  Pods
+//  SmileBaby
 //
-//  Created by Mohamed Hamed on 6/16/17.
-//
+//  Created by bhpark on 2021/06/08.
+//  Copyright © 2021 smilelab. All rights reserved.
 //
 
-import Foundation
 import UIKit
+
 
 extension PhotoEditorViewController {
     
@@ -15,6 +15,8 @@ extension PhotoEditorViewController {
         if isTyping {
             doneButton.isHidden = false
             colorPickerView.isHidden = false
+            btnBack.isHidden = true
+            btnFinish.isHidden = true
             hideToolbar(hide: true)
         }
     }
@@ -22,6 +24,8 @@ extension PhotoEditorViewController {
     @objc func keyboardWillHide(notification: NSNotification) {
         isTyping = false
         doneButton.isHidden = true
+        btnBack.isHidden = false
+        btnFinish.isHidden = false
         hideToolbar(hide: false)
     }
     
@@ -33,9 +37,9 @@ extension PhotoEditorViewController {
             let animationCurveRaw = animationCurveRawNSN?.uintValue ?? UIView.AnimationOptions.curveEaseInOut.rawValue
             let animationCurve:UIView.AnimationOptions = UIView.AnimationOptions(rawValue: animationCurveRaw)
             if (endFrame?.origin.y)! >= UIScreen.main.bounds.size.height {
-                self.colorPickerViewBottomConstraint?.constant = 0.0
+                self.colorPickerViewBottomConstraint.constant = 0.0
             } else {
-                self.colorPickerViewBottomConstraint?.constant = endFrame?.size.height ?? 0.0
+                self.colorPickerViewBottomConstraint.constant = -(endFrame?.size.height ?? 0.0)
             }
             UIView.animate(withDuration: duration,
                            delay: TimeInterval(0),
@@ -46,3 +50,4 @@ extension PhotoEditorViewController {
     }
 
 }
+
