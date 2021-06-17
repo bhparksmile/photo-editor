@@ -16,15 +16,15 @@ extension PhotoEditorViewController {
         self.canvasImageView.isUserInteractionEnabled = false
         stickersViewController.stickersViewControllerDelegate = self
         
-        for image in self.stickers {
-            stickersViewController.stickers.append(image)
-        }
+//        for image in self.stickers {
+//            stickersViewController.stickers.append(image)
+//        }
         self.addChild(stickersViewController)
         self.view.addSubview(stickersViewController.view)
         stickersViewController.didMove(toParent: self)
         let height = view.frame.height
         let width  = view.frame.width
-        stickersViewController.view.frame = CGRect(x: 0, y: self.view.frame.maxY , width: width, height: height)
+        stickersViewController.view.frame = CGRect(x: 0, y: 0, width: width, height: height)
     }
     
     func removeStickersView() {
@@ -43,6 +43,26 @@ extension PhotoEditorViewController {
             self.stickersViewController.removeFromParent()
             self.hideToolbar(hide: false)
         })
+    }
+    
+    func extractStickerView(view: UIView) -> [StickerView] {
+        var stickerViews: [StickerView] = []
+        for subView in view.subviews {
+            if subView is StickerView {
+                stickerViews.append(subView as! StickerView)
+            }
+        }
+        return stickerViews
+    }
+    
+    func deselectAllStickerView() {
+        for subView in self.canvasImageView.subviews {
+            if subView is StickerView {
+                (subView as! StickerView).isSelected = false
+            } else if subView is TextStickerView {
+                (subView as! TextStickerView).isSelected = false
+            }
+        }
     }
 }
 
@@ -75,6 +95,7 @@ extension PhotoEditorViewController: StickersViewControllerDelegate {
     
     func stickersViewDidDisappear() {
         stickersVCIsVisible = false
+        self.removeStickersView()
         hideToolbar(hide: false)
     }
     
@@ -103,24 +124,5 @@ extension PhotoEditorViewController: StickersViewControllerDelegate {
         view.addGestureRecognizer(tapGesture)
         
     }
-    
-    func extractStickerView(view: UIView) -> [StickerView] {
-        var stickerViews: [StickerView] = []
-        for subView in view.subviews {
-            if subView is StickerView {
-                stickerViews.append(subView as! StickerView)
-            }
-        }
-        return stickerViews
-    }
-    
-    func deselectAllStickerView() {
-        for subView in self.canvasImageView.subviews {
-            if subView is StickerView {
-                (subView as! StickerView).isSelected = false
-            } else if subView is TextStickerView {
-                (subView as! TextStickerView).isSelected = false
-            }
-        }
-    }
+
 }

@@ -18,7 +18,8 @@ class PhotoEditorViewController: UIViewController {
     
     var bottomControlToolbar: UIView = UIView()
     lazy var bottomControlToolbarStackView: UIStackView = {
-        return UIStackView(arrangedSubviews: [self.stickerButton, self.textButton, self.btnFilter])
+        return UIStackView(arrangedSubviews: [self.stickerButton, self.textButton])
+//                                              , self.btnFilter])
     } ()
     
     var stickerButton: UIButton = UIButton()
@@ -132,7 +133,7 @@ class PhotoEditorViewController: UIViewController {
                                                name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         
         configureCollectionView()
-        stickersViewController = StickersViewController(nibName: "StickersViewController", bundle: Bundle(for: StickersViewController.self))
+        stickersViewController = StickersViewController()
         hideControls()
     }
     
@@ -272,13 +273,13 @@ class PhotoEditorViewController: UIViewController {
         constraints.append(self.topGradient.leadingAnchor.constraint(equalTo: self.view.leadingAnchor))
         constraints.append(self.topGradient.trailingAnchor.constraint(equalTo: self.view.trailingAnchor))
         constraints.append(self.topGradient.heightAnchor.constraint(equalToConstant: 60))
-        constraints.append(self.topGradient.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor))
+        constraints.append(self.topGradient.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor))
         
         // topToolBar
         constraints.append(self.topToolbar.leadingAnchor.constraint(equalTo: self.view.leadingAnchor))
         constraints.append(self.topToolbar.trailingAnchor.constraint(equalTo: self.view.trailingAnchor))
         constraints.append(self.topToolbar.heightAnchor.constraint(equalToConstant: 60))
-        constraints.append(self.topToolbar.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor))
+        constraints.append(self.topToolbar.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor))
         
         // topToolBar stackView
         constraints.append(self.topToolbarStackView.topAnchor.constraint(equalTo: self.topToolbar.topAnchor))
@@ -290,13 +291,13 @@ class PhotoEditorViewController: UIViewController {
         // gradientView
         constraints.append(self.bottomGradient.leadingAnchor.constraint(equalTo: self.view.leadingAnchor))
         constraints.append(self.bottomGradient.trailingAnchor.constraint(equalTo: self.view.trailingAnchor))
-        constraints.append(self.bottomGradient.bottomAnchor.constraint(equalTo: self.bottomLayoutGuide.topAnchor))
+        constraints.append(self.bottomGradient.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor))
         constraints.append(self.bottomGradient.heightAnchor.constraint(equalToConstant: 80))
         
         // bottomToolBar
         constraints.append(self.bottomToolbar.leadingAnchor.constraint(equalTo: self.view.leadingAnchor))
         constraints.append(self.bottomToolbar.trailingAnchor.constraint(equalTo: self.view.trailingAnchor))
-        constraints.append(self.bottomToolbar.bottomAnchor.constraint(equalTo: self.bottomLayoutGuide.topAnchor))
+        constraints.append(self.bottomToolbar.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor))
         constraints.append(self.bottomToolbar.heightAnchor.constraint(equalToConstant: 60))
         
         // bottomToolBar stackView
@@ -307,7 +308,7 @@ class PhotoEditorViewController: UIViewController {
         // controlBar
         constraints.append(self.bottomControlToolbar.leadingAnchor.constraint(equalTo: self.view.leadingAnchor))
         constraints.append(self.bottomControlToolbar.trailingAnchor.constraint(equalTo: self.view.trailingAnchor))
-        constraints.append(self.bottomControlToolbar.bottomAnchor.constraint(equalTo: self.bottomLayoutGuide.topAnchor))
+        constraints.append(self.bottomControlToolbar.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor))
         constraints.append(self.bottomControlToolbar.heightAnchor.constraint(equalToConstant: 60))
         
         // bottomToolBar stackView
@@ -318,22 +319,22 @@ class PhotoEditorViewController: UIViewController {
         
         // back button
         constraints.append(btnBack.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 12))
-        constraints.append(btnBack.centerYAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 16))
+        constraints.append(btnBack.centerYAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 16))
         constraints.append(btnBack.widthAnchor.constraint(equalToConstant: 30))
         constraints.append(btnBack.heightAnchor.constraint(equalToConstant: 30))
         
         // continue button
         constraints.append(btnFinish.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -24))
-        constraints.append(btnFinish.topAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 16))
+        constraints.append(btnFinish.centerYAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 16))
         constraints.append(btnFinish.heightAnchor.constraint(equalToConstant: 30))
         
         // done button
         constraints.append(doneButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -12))
-        constraints.append(doneButton.centerYAnchor.constraint(equalTo: self.topLayoutGuide.bottomAnchor, constant: 16))
+        constraints.append(doneButton.centerYAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 16))
         
         // delete View
         constraints.append(self.deleteView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor))
-        constraints.append(self.deleteView.bottomAnchor.constraint(equalTo: self.bottomLayoutGuide.topAnchor, constant: -12))
+        constraints.append(self.deleteView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -12))
         constraints.append(self.deleteView.widthAnchor.constraint(equalToConstant: 50))
         constraints.append(self.deleteView.heightAnchor.constraint(equalToConstant: 50))
         
