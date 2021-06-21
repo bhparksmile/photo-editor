@@ -15,11 +15,17 @@ class ColorsCollectionViewDelegate: NSObject, UICollectionViewDataSource, UIColl
     /**
      Array of Colors that will show while drawing or typing
      */
-    var colors = [UIColor.black,
+    var colors = [UIColor.white,
+                  UIColor.categoryPink2,
+                  UIColor(hex: "ff924e"),
+                  UIColor(hex: "ffe243"),
+                  UIColor(hex: "b6e71e"),
+                  UIColor(hex: "8dd2f4"),
+                  UIColor(hex: "936cc3"),
+                  UIColor.black,
                   UIColor.darkGray,
                   UIColor.gray,
                   UIColor.lightGray,
-                  UIColor.white,
                   UIColor.blue,
                   UIColor.green,
                   UIColor.red,
@@ -49,9 +55,17 @@ class ColorsCollectionViewDelegate: NSObject, UICollectionViewDataSource, UIColl
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell  = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorCollectionViewCell", for: indexPath) as! ColorCollectionViewCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorCollectionViewCell", for: indexPath) as! ColorCollectionViewCell
+
+        cell.colorView.layer.cornerRadius = 32 / 2
+        cell.colorView.layer.masksToBounds = true
         cell.colorView.backgroundColor = colors[indexPath.item]
+        
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: 32, height: 32)
     }
     
 }

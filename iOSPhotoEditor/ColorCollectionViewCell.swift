@@ -18,10 +18,10 @@ class ColorCollectionViewCell: UICollectionViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        colorView.layer.cornerRadius = colorView.frame.width / 2
-        colorView.clipsToBounds = true
-        colorView.layer.borderWidth = 1.0
-        colorView.layer.borderColor = UIColor.white.cgColor
+//        colorView.layer.cornerRadius = colorView.frame.width / 2
+//        colorView.clipsToBounds = true
+//        colorView.layer.borderWidth = 1.0
+//        colorView.layer.borderColor = UIColor.white.cgColor
     }
     
     override var isSelected: Bool {
@@ -30,7 +30,7 @@ class ColorCollectionViewCell: UICollectionViewCell {
                 let previouTransform =  colorView.transform
                 UIView.animate(withDuration: 0.2,
                                animations: {
-                                self.colorView.transform = self.colorView.transform.scaledBy(x: 1.3, y: 1.3)
+                                self.colorView.transform = self.colorView.transform.scaledBy(x: 0.7, y: 0.7)
                 },
                                completion: { _ in
                                 UIView.animate(withDuration: 0.2) {

@@ -30,4 +30,16 @@ public extension UIImage {
         
         return nil
     }
+    
+    func suitableSize(limit: CGSize)-> CGSize? {
+        let widthRatio = limit.width / self.size.width
+        let heightRatio = limit.height / self.size.height
+        let ratio = min(widthRatio, heightRatio)
+        
+        let newWidth = Int(round(self.size.width * ratio))
+        let newHeight = Int(round(self.size.height * ratio))
+        
+        return CGSize(width: newWidth, height: newHeight)
+    }
+    
 }

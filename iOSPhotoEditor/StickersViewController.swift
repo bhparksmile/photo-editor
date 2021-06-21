@@ -22,6 +22,7 @@ class StickersViewController: UIViewController {
     private var titleBottomView = UIView()
     private var lbTitle = UILabel()
     private var btnBack = UIButton()
+    private let bottomSafeAreaView = UIView()
     
     var stickersViewControllerDelegate: StickersViewControllerDelegate?
     
@@ -61,16 +62,23 @@ class StickersViewController: UIViewController {
         tabbarLayout.scrollDirection = .horizontal
         tabbarCollectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: tabbarLayout)
         
+        let blurEffect = UIBlurEffect(style: .regular)
+        let visualEffectView = UIVisualEffectView(effect: blurEffect)
+        visualEffectView.frame = self.view.frame
+        self.view.addSubview(visualEffectView)
+        
+        self.view.addSubview(bottomSafeAreaView)
         self.view.addSubview(contentCollectionView)
         self.view.addSubview(tabbarCollectionView)
         self.view.addSubview(titleBottomView)
         titleBottomView.addSubview(lbTitle)
         titleBottomView.addSubview(btnBack)
         
-        self.view.backgroundColor = .black
-        tabbarCollectionView.backgroundColor = .clear
+        self.view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        bottomSafeAreaView.backgroundColor = .black
+        tabbarCollectionView.backgroundColor = .black
         contentCollectionView.backgroundColor = .clear
-        titleBottomView.backgroundColor = .clear
+        titleBottomView.backgroundColor = .black
 
         contentCollectionView.isPagingEnabled = true
         contentCollectionView.allowsSelection = false
@@ -85,6 +93,7 @@ class StickersViewController: UIViewController {
     }
     
     private func setupLayout() {
+        bottomSafeAreaView.translatesAutoresizingMaskIntoConstraints = false
         contentCollectionView.translatesAutoresizingMaskIntoConstraints = false
         tabbarCollectionView.translatesAutoresizingMaskIntoConstraints = false
         titleBottomView.translatesAutoresizingMaskIntoConstraints = false
@@ -116,6 +125,10 @@ class StickersViewController: UIViewController {
         constraints.append(btnBack.widthAnchor.constraint(equalToConstant: CGFloat(TITLE_BOTTOM_VIEW_HEIGHT)))
         constraints.append(btnBack.heightAnchor.constraint(equalToConstant: CGFloat(TITLE_BOTTOM_VIEW_HEIGHT)))
         
+        constraints.append(bottomSafeAreaView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor))
+        constraints.append(bottomSafeAreaView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor))
+        constraints.append(bottomSafeAreaView.topAnchor.constraint(equalTo: titleBottomView.topAnchor))
+        constraints.append(bottomSafeAreaView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor))
         NSLayoutConstraint.activate(constraints)
     }
     
@@ -140,7 +153,7 @@ class StickersViewController: UIViewController {
     
     
     @objc func tabBack() {
-        self.dismiss(animated: true, completion: nil)
+        stickersViewControllerDelegate?.stickersViewDidDisappear()
     }
 }
 
@@ -231,6 +244,7 @@ class StickerCategoryPagingCell: UICollectionViewCell {
         layout.minimumInteritemSpacing = 16
         layout.itemSize = CGSize(width: 50, height: 50)
         stickersCollectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        stickersCollectionView.backgroundColor = .clear
         stickersCollectionView.register(StickerThumbnailCell.self, forCellWithReuseIdentifier: StickerThumbnailCell.classNameToString())
         stickersCollectionView.dataSource = adapter
         stickersCollectionView.delegate = adapter

@@ -25,15 +25,20 @@ extension PhotoEditorViewController: TextStickerDelegate {
         lastTextViewTransCenter = textStickerView.center
         lastTextViewFont = textStickerView.textView.font!
         activeTextView = textStickerView.textView
+        textStickerView.backgroundColor = UIColor.black.withAlphaComponent(0.7)
+        textStickerView.superview!.bringSubviewToFront(textStickerView)
         textStickerView.isSelected = false
-        textStickerView.superview?.bringSubviewToFront(textStickerView)
         textStickerView.textView.font = textFont
+        textStickerView.gestureRecognizers?.forEach({ gesture in
+            gesture.isEnabled = false
+        })
         UIView.animate(withDuration: 0.15,
                        animations: {
                         textStickerView.transform = CGAffineTransform.identity
-                        textStickerView.frame = CGRect(x: 0, y: UIScreen.main.bounds.height / 8,
-                                                width: UIScreen.main.bounds.width, height: 100)
-        }, completion: nil)
+                        textStickerView.frame = CGRect(x: 0, y: self.canvasImageView.bounds.minY,
+                                                       width: UIScreen.main.bounds.width,
+                                                       height: self.canvasImageView.bounds.height)
+                       }, completion: nil)
     }
     
     public func textViewDidEndEditing(_ textStickerView: TextStickerView) {
@@ -43,6 +48,7 @@ extension PhotoEditorViewController: TextStickerDelegate {
         }
         activeTextView = nil
         textStickerView.textView.font = self.lastTextViewFont!
+        textStickerView.backgroundColor = .clear
         UIView.animate(withDuration: 0.15,
                        animations: {
                         textStickerView.transform = self.lastTextViewTransform!
@@ -62,6 +68,9 @@ extension PhotoEditorViewController: TextStickerDelegate {
             
             self.deselectAllStickerView()
             textStickerView.isSelected = true
+            textStickerView.gestureRecognizers?.forEach({ gesture in
+                gesture.isEnabled = true
+            })
         }
     }
 

@@ -8,6 +8,14 @@
 
 import Foundation
 import UIKit
+
+
+protocol TextStickerDelegate {
+    func textViewDidChange(_ textStickerView: TextStickerView)
+    func textViewDidBeginEditing(_ textStickerView: TextStickerView)
+    func textViewDidEndEditing(_ textStickerView: TextStickerView)
+}
+
 /**
  - didSelectView
  - didSelectImage

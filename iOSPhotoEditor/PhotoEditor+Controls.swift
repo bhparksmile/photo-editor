@@ -50,9 +50,9 @@ extension PhotoEditorViewController {
 
     @objc func textButtonTapped(_ sender: Any) {
         isTyping = true
-        let textStickerView = TextStickerView(frame: CGRect(x: 0, y: canvasImageView.center.y,
-                                                width: UIScreen.main.bounds.width, height: 30))
-        
+        let textStickerView = TextStickerView(frame: CGRect(x: 0, y: self.canvasImageView.bounds.minY,
+                                                            width: UIScreen.main.bounds.width,
+                                                            height: self.canvasImageView.bounds.height))
         textStickerView.textView.textAlignment = .center
         textStickerView.textView.font = textFont?.withSize(30)
         textStickerView.textView.textColor = textColor

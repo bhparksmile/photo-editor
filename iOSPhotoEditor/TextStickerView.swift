@@ -8,12 +8,6 @@
 
 import UIKit
 
-protocol TextStickerDelegate {
-    func textViewDidChange(_ textStickerView: TextStickerView)
-    func textViewDidBeginEditing(_ textStickerView: TextStickerView)
-    func textViewDidEndEditing(_ textStickerView: TextStickerView)
-}
-
 class TextStickerView: UIView {
     
     var isSelected = false {

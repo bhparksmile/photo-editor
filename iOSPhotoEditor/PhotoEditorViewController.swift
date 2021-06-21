@@ -9,10 +9,14 @@
 import UIKit
 
 class PhotoEditorViewController: UIViewController {
+    var canvasGuideView: UIView = UIView()
     var canvasView: UIView = UIView()
     var imageView: UIImageView = UIImageView()
     lazy var imageViewHeightConstraint: NSLayoutConstraint = {
         return self.imageView.heightAnchor.constraint(equalToConstant: 0)
+    } ()
+    lazy var imageViewWidthConstraint: NSLayoutConstraint = {
+        return self.imageView.widthAnchor.constraint(equalToConstant: 0)
     } ()
     var canvasImageView: UIImageView = UIImageView()
     
@@ -57,14 +61,15 @@ class PhotoEditorViewController: UIViewController {
     } ()
     lazy var colorsCollectionView: UICollectionView = {
         let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: 30, height: 30)
+        layout.itemSize = CGSize(width: 32, height: 32)
         layout.scrollDirection = .horizontal
-        layout.minimumInteritemSpacing = 0
-        layout.minimumLineSpacing = 0
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
+        layout.minimumInteritemSpacing = 8
+        layout.minimumLineSpacing = 8
         return UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
     } ()
     
-    var dummyTextView = UITextView()
+    let dummyTextView = UITextView()
 
     
     public var image: UIImage?
@@ -115,11 +120,6 @@ class PhotoEditorViewController: UIViewController {
         
         self.setImageView(image: image!)
         
-//        deleteView.layer.cornerRadius = deleteView.bounds.height / 2
-//        deleteView.layer.borderWidth = 2.0
-//        deleteView.layer.borderColor = UIColor.white.cgColor
-//        deleteView.clipsToBounds = true
-        
         let edgePan = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(screenEdgeSwiped))
         edgePan.edges = .bottom
         edgePan.delegate = self
@@ -140,44 +140,46 @@ class PhotoEditorViewController: UIViewController {
     
     private func setupView() {
         self.view.backgroundColor = .black
-        self.view.addSubview(self.canvasView)
-        self.canvasView.addSubview(self.imageView)
-        self.canvasView.addSubview(self.canvasImageView)
+        self.view.addSubview(canvasGuideView)
+        self.view.addSubview(canvasView)
+        self.canvasView.addSubview(imageView)
+        self.canvasView.addSubview(canvasImageView)
         
-        self.view.addSubview(self.topGradient)
+        self.view.addSubview(topGradient)
+        self.view.addSubview(topToolbar)
+        self.topToolbar.addSubview(topToolbarStackView)
+        self.view.addSubview(btnFinish)
+        self.view.addSubview(btnBack)
+        self.view.addSubview(self.bottomGradient)
+        self.view.addSubview(self.bottomToolbar)
+        self.bottomToolbar.addSubview(self.bottomToolbarStackView)
+        self.view.addSubview(self.bottomControlToolbar)
+        self.bottomControlToolbar.addSubview(self.bottomControlToolbarStackView)
+        self.view.addSubview(self.doneButton)
+        self.view.addSubview(self.deleteView)
+        self.view.addSubview(colorPickerView)
         
-        self.view.addSubview(self.topToolbar)
-//        self.topToolbar.addSubview(self.cancelbutton)
-        self.topToolbar.addSubview(self.topToolbarStackView)
+        canvasGuideView.backgroundColor = .clear
+        
         self.topToolbarStackView.axis = .horizontal
         self.topToolbarStackView.spacing = 15
         self.topToolbarStackView.alignment = .fill
         self.topToolbarStackView.distribution = .fillEqually
-        
-        self.view.addSubview(btnFinish)
-        self.view.addSubview(btnBack)
-        self.view.addSubview(self.bottomGradient)
-        
-        self.view.addSubview(self.bottomToolbar)
-        self.bottomToolbar.addSubview(self.bottomToolbarStackView)
-//        self.bottomToolbar.addSubview(self.continueButton)
+
         self.bottomToolbarStackView.axis = .horizontal
         self.bottomToolbarStackView.spacing = 15
         self.bottomToolbarStackView.alignment = .fill
         self.bottomToolbarStackView.distribution = .fillEqually
         
-        self.view.addSubview(self.bottomControlToolbar)
-        self.bottomControlToolbar.addSubview(self.bottomControlToolbarStackView)
         self.bottomControlToolbarStackView.axis = .horizontal
         self.bottomControlToolbarStackView.alignment = .fill
         self.bottomControlToolbarStackView.distribution = .fillEqually
-        
-        self.view.addSubview(self.doneButton)
-        self.view.addSubview(self.deleteView)
-        
-        self.view.addSubview(self.colorPickerView)
-        self.colorPickerView.isHidden = true
-        self.colorPickerView.addSubview(self.colorsCollectionView)
+
+        colorPickerView.isHidden = true
+        colorPickerView.backgroundColor = .clear
+        colorPickerView.addSubview(colorsCollectionView)
+        colorsCollectionView.backgroundColor = .clear
+        colorsCollectionView.showsHorizontalScrollIndicator = false
         
         self.stickerButton.setImage(R.image.icnSticker(), for: .normal)
         self.textButton.setImage(R.image.icnText(), for: .normal)
@@ -210,6 +212,7 @@ class PhotoEditorViewController: UIViewController {
     }
 
     private func setupLayout() {
+        canvasGuideView.translatesAutoresizingMaskIntoConstraints = false
         self.canvasView.translatesAutoresizingMaskIntoConstraints = false
         self.imageView.translatesAutoresizingMaskIntoConstraints = false
         self.canvasImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -235,8 +238,6 @@ class PhotoEditorViewController: UIViewController {
         self.bottomControlToolbar.translatesAutoresizingMaskIntoConstraints = false
         self.bottomControlToolbarStackView.translatesAutoresizingMaskIntoConstraints = false
         
-        self.bottomToolbar.translatesAutoresizingMaskIntoConstraints = false
-        
         self.doneButton.translatesAutoresizingMaskIntoConstraints = false
         self.deleteView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -244,24 +245,40 @@ class PhotoEditorViewController: UIViewController {
         self.colorsCollectionView.translatesAutoresizingMaskIntoConstraints = false
         
         var constraints = [NSLayoutConstraint]()
+        constraints.append(canvasGuideView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor))
+        constraints.append(canvasGuideView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor))
+        constraints.append(canvasGuideView.topAnchor.constraint(equalTo: btnBack.bottomAnchor))
+        constraints.append(canvasGuideView.bottomAnchor.constraint(equalTo: bottomControlToolbar.topAnchor))
+        
         // canvas
         constraints.append(self.canvasView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor))
         constraints.append(self.canvasView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor))
-        constraints.append(self.canvasView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor))
-        constraints.append(self.canvasView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor))
+        constraints.append(self.canvasView.centerXAnchor.constraint(equalTo: canvasGuideView.centerXAnchor))
+        constraints.append(self.canvasView.centerYAnchor.constraint(equalTo: canvasGuideView.centerYAnchor))
         
         // imageView
-        constraints.append(self.imageView.leadingAnchor.constraint(equalTo: self.canvasView.leadingAnchor))
-        constraints.append(self.imageView.trailingAnchor.constraint(equalTo: self.canvasView.trailingAnchor))
         constraints.append(self.imageView.centerYAnchor.constraint(equalTo: self.canvasView.centerYAnchor))
+        constraints.append(self.imageView.centerXAnchor.constraint(equalTo: self.canvasView.centerXAnchor))
+        
+        
         let imageViewTop = self.imageView.topAnchor.constraint(equalTo: self.canvasView.topAnchor)
         let imageViewBottom = self.imageView.bottomAnchor.constraint(equalTo: self.canvasView.bottomAnchor)
-        imageViewTop.priority = .defaultLow
+        imageViewTop.priority = .defaultHigh
         imageViewBottom.priority = .defaultHigh
         self.imageViewHeightConstraint.priority = .required
+        self.imageViewWidthConstraint.priority = .required
         constraints.append(imageViewTop)
         constraints.append(imageViewBottom)
+        
+        let imageViewLeading = self.imageView.leadingAnchor.constraint(equalTo: self.canvasView.leadingAnchor)
+        let imageViewTrailing = self.imageView.trailingAnchor.constraint(equalTo: self.canvasView.trailingAnchor)
+        imageViewLeading.priority = .defaultHigh
+        imageViewTrailing.priority = .defaultHigh
+        constraints.append(imageViewLeading)
+        constraints.append(imageViewTrailing)
+
         constraints.append(self.imageViewHeightConstraint)
+        constraints.append(self.imageViewWidthConstraint)
         
         // canvasImageView
         constraints.append(self.canvasImageView.widthAnchor.constraint(equalTo: self.imageView.widthAnchor))
@@ -346,10 +363,10 @@ class PhotoEditorViewController: UIViewController {
         constraints.append(self.colorPickerViewBottomConstraint)
         
         // collectionView
-        constraints.append(self.colorsCollectionView.topAnchor.constraint(equalTo: self.colorPickerView.topAnchor))
-        constraints.append(self.colorsCollectionView.trailingAnchor.constraint(equalTo: self.colorPickerView.trailingAnchor))
-        constraints.append(self.colorsCollectionView.leadingAnchor.constraint(equalTo: self.colorPickerView.leadingAnchor))
-        constraints.append(self.colorsCollectionView.heightAnchor.constraint(equalToConstant: 40))
+        constraints.append(colorsCollectionView.centerYAnchor.constraint(equalTo: colorPickerView.centerYAnchor))
+        constraints.append(colorsCollectionView.trailingAnchor.constraint(equalTo: colorPickerView.trailingAnchor))
+        constraints.append(colorsCollectionView.leadingAnchor.constraint(equalTo: colorPickerView.leadingAnchor))
+        constraints.append(colorsCollectionView.heightAnchor.constraint(equalToConstant: 32))
         
         NSLayoutConstraint.activate(constraints)
     }
@@ -385,9 +402,19 @@ class PhotoEditorViewController: UIViewController {
     }
     
     func setImageView(image: UIImage) {
+        var contentHeight = UIScreen.main.bounds.height - 30 - 60
+        
+        // 노치영역, 하단영역
+        if UIDevice.current.model.rawValue > UIDevice.Display.iPhone8Plus.rawValue {
+            contentHeight = contentHeight - 44 - 34
+        }
+        
+        let contentArea = CGSize(width: UIScreen.main.bounds.width, height: contentHeight)
+
         imageView.image = image
-        let size = image.suitableSize(widthLimit: UIScreen.main.bounds.width)
-        imageViewHeightConstraint.constant = (size?.height)!
+        let size = image.suitableSize(limit: contentArea)!
+        imageViewWidthConstraint.constant = size.width
+        imageViewHeightConstraint.constant = size.height
     }
     
     func hideToolbar(hide: Bool) {
